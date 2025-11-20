@@ -8,7 +8,7 @@ Este é o aplicativo cliente móvel, desenvolvido com **React Native** e **Expo*
 
 | Tela de Login                                       | Tela de Clientes                                        |
 | --------------------------------------------------- | ------------------------------------------------------- |
-| ![Tela de Login](link-para-sua-screenshot-de-login.png) | ![Tela de Clientes](link-para-sua-screenshot-de-clientes.png) |
+| ![Tela de Login](https://github.com/SauloCunha02/frontend-react-native--api-laravel12/blob/main/assets/images/login.PNG) | ![Tela de Clientes](https://github.com/SauloCunha02/frontend-react-native--api-laravel12/blob/main/assets/images/home.PNG) |
 
 
 ## ✨ Tecnologias Utilizadas
@@ -66,10 +66,10 @@ Importante: Não use localhost ou 127.0.0.1. O emulador/dispositivo móvel preci
 
 4. Iniciar o Servidor de Desenvolvimento
 
-Inicie o servidor de desenvolvimento do Expo.
+Inicie o servidor.
 
 ```bash
-expo start
+npm start
 ```
 Isso abrirá o Metro Bundler no seu navegador. Você pode então escanear o QR Code com o aplicativo Expo Go no seu celular ou rodar o app em um emulador (pressionando a para Android ou i para iOS no terminal).
 
