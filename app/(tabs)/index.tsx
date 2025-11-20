@@ -1,98 +1,151 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Button,
+  FlatList,
+  RefreshControl // Importado para a funcionalidade "puxar para atualizar"
+  ,
+  StyleSheet,
+  Text,
+  View
+} from 'react-native';
+import { getClients } from '../../src/api/clientService';
+import ClientListItem from '../../src/components/ClientListItem';
+import { Client } from '../../src/types/api';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const fetchClients = useCallback(async () => {
+    // Não seta loading para true se for apenas um refresh, para uma UI mais suave
+    if (!isRefreshing) {
+      setLoading(true);
+    }
+    setError(null);
+
+    try {
+      console.log('[HomeScreen] Buscando clientes...');
+      const paginatedResponse = await getClients();
+
+      // =================================================================
+      // PONTO DE DEPURAÇÃO CRÍTICO: Inspecionando a resposta da API
+      // =================================================================
+      console.log(
+        '[HomeScreen] Resposta recebida da API:', 
+        JSON.stringify(paginatedResponse, null, 2)
+      );
+      // =================================================================
+
+      // Verificação de segurança para garantir que a resposta tem o formato esperado
+      if (paginatedResponse && Array.isArray(paginatedResponse.data)) {
+        setClients(paginatedResponse.data);
+        console.log(`[HomeScreen] SUCESSO: ${paginatedResponse.data.length} clientes foram definidos no estado.`);
+      } else {
+        console.error('[HomeScreen] ERRO DE FORMATO: A resposta da API não contém um array em `response.data`.');
+        setError('O formato dos dados recebidos é inválido.');
+        setClients([]); // Limpa a lista para evitar crashes
+      }
+
+    } catch (err) {
+      console.error('[HomeScreen] Erro capturado na função fetchClients:', err);
+      setError('Não foi possível carregar os clientes. Verifique sua conexão.');
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing]);
+
+  // `useEffect` para buscar os dados quando o componente é montado pela primeira vez
+  useEffect(() => {
+    fetchClients();
+  }, [fetchClients]);
+
+  // Função para o "puxar para atualizar"
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    fetchClients();
+  };
+
+  // Renderiza um indicador de carregamento inicial
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text style={styles.infoText}>Carregando clientes...</Text>
+      </View>
+    );
+  }
+
+  // Renderiza uma mensagem de erro com um botão para tentar novamente
+  if (error && clients.length === 0) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorText}>{error}</Text>
+        <Button title="Tentar Novamente" onPress={fetchClients} color="#007AFF" />
+      </View>
+    );
+  }
+
+  // Renderiza a lista de clientes usando FlatList
+  return (
+    <FlatList
+      data={clients}
+      renderItem={({ item }) => <ClientListItem client={item} />}
+      keyExtractor={(item) => item.id.toString()}
+      contentContainerStyle={styles.listContainer}
+      ListHeaderComponent={<Text style={styles.title}>Meus Clientes</Text>}
+      ListEmptyComponent={
+        <View style={styles.center}>
+          <Text style={styles.infoText}>Nenhum cliente encontrado.</Text>
+          <Text style={styles.subInfoText}>Puxe para baixo para atualizar.</Text>
+        </View>
+      }
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={onRefresh}
+          colors={["#007AFF"]} // Cor do spinner no Android
+          tintColor={"#007AFF"} // Cor do spinner no iOS
+        />
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  center: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
+    padding: 20,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  listContainer: {
+    paddingBottom: 20, // Espaço no final da lista
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginHorizontal: 16,
+    marginBottom: 10,
+    marginTop: 20,
+  },
+  infoText: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 8,
+  },
+  subInfoText: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 4,
+  },
+  errorText: {
+    fontSize: 16,
+    color: 'red',
+    marginBottom: 16,
+    textAlign: 'center',
   },
 });

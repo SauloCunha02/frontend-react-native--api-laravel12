@@ -1,33 +1,35 @@
+// app/(tabs)/_layout.tsx
+import { FontAwesome } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Pressable } from 'react-native';
+import { useAuth } from '../../src/contexts/AuthContext';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { signOut } = useAuth();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
+        tabBarActiveTintColor: 'blue',
+        // Adicionando um botão de logout no header
+        headerRight: () => (
+          <Pressable onPress={signOut} style={{ marginRight: 15 }}>
+            <FontAwesome name="sign-out" size={24} color="gray" />
+          </Pressable>
+        ),
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
           title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome size={28} name="compass" color={color} />,
         }}
       />
     </Tabs>
