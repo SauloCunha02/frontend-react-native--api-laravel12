@@ -1,10 +1,9 @@
-# Cliente da API - React Native (Expo)
+# Cliente da API - React Native
 
-Este é o aplicativo cliente móvel, desenvolvido com **React Native** e **Expo**, para consumir a [API de Gerenciamento de Clientes em Laravel](link-para-o-repositorio-da-sua-api). O aplicativo permite a autenticação de usuários e a visualização de uma lista de clientes, servindo como uma base sólida para um aplicativo de negócios completo.
+Este é o aplicativo cliente móvel, desenvolvido com **React Native** para consumir a [API de Gerenciamento de Clientes em Laravel12]([link-para-o-repositorio-da-sua-api](https://github.com/SauloCunha02/api-sanctum-laravel12)). O aplicativo permite a autenticação de usuários e a visualização de uma lista de clientes, servindo como uma base sólida para um aplicativo completo.
 
 ## 🖼️ Telas do Aplicativo
 
-*(Dica: Substitua os links abaixo pelos links das suas screenshots no GitHub)*
 
 | Tela de Login                                       | Tela de Clientes                                        |
 | --------------------------------------------------- | ------------------------------------------------------- |
@@ -14,7 +13,6 @@ Este é o aplicativo cliente móvel, desenvolvido com **React Native** e **Expo*
 ## ✨ Tecnologias Utilizadas
 
 -   **React Native:** Framework para desenvolvimento de aplicativos nativos com JavaScript e React.
--   **Expo & Expo Router:** Utilizado para um desenvolvimento mais rápido e para a navegação baseada em arquivos, similar ao Next.js.
 -   **TypeScript:** Garante a segurança de tipos e a robustez do código.
 -   **Axios:** Cliente HTTP para comunicação com a API, configurado com interceptors para automação de autenticação.
 -   **React Context API:** Utilizada para o gerenciamento de estado global de autenticação (`AuthContext`).
@@ -52,26 +50,15 @@ ou
 yarn install
 ```
 
-3. Configurar o Endereço da API
 
-Este é o passo mais importante. O aplicativo precisa saber onde encontrar a sua API Laravel.
-
-Crie um arquivo chamado .env na raiz do projeto.
-Adicione a seguinte variável, substituindo o IP pelo endereço IP da máquina onde seu servidor Laravel está rodando:
-```dotenv
-# .env
-EXPO_PUBLIC_API_URL=http://192.168.1.110/laravel-sanctum-api/public/api
-```
-Importante: Não use localhost ou 127.0.0.1. O emulador/dispositivo móvel precisa do IP da sua máquina na rede local. Certifique-se de que seu computador e seu dispositivo de teste estejam na mesma rede Wi-Fi.
-
-4. Iniciar o Servidor de Desenvolvimento
+3. Iniciar o Servidor de Desenvolvimento
 
 Inicie o servidor.
 
 ```bash
 npm start
 ```
-Isso abrirá o Metro Bundler no seu navegador. Você pode então escanear o QR Code com o aplicativo Expo Go no seu celular ou rodar o app em um emulador (pressionando a para Android ou i para iOS no terminal).
+
 
 📁 Estrutura de Pastas
 A estrutura do projeto separa claramente as rotas da lógica da aplicação.
